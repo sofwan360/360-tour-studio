@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#101114"><meta name="description" content="Create and explore interactive 360 panoramic virtual tours.">
+  <title>360° Tour Studio</title><link rel="stylesheet" href="styles.css">
+  <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
+</head>
+<body>
+<div class="app-shell">
+  <header class="topbar">
+    <a class="brand" href="#"><span class="brand-mark">360</span><span>TOUR<span class="brand-light">STUDIO</span><small>VIRTUAL EXPERIENCE BUILDER</small></span></a>
+    <div class="project-name"><span class="live-dot"></span><input id="projectTitle" value="Untitled Interior Project" aria-label="Project title"></div>
+    <div class="top-actions"><button class="btn subtle" id="helpBtn">Help</button><button class="btn subtle" id="openProjectBtn">Open project</button><button class="btn subtle" id="saveBtn">Save project</button><button class="btn primary" id="exportBtn">Export tour ↗</button></div>
+    <button class="mobile-menu" id="mobileMenu" aria-label="Toggle scenes panel">☰</button><button class="mobile-menu" id="mobileProperties" aria-label="Toggle properties">⚙</button>
+  </header>
+  <main class="workspace">
+    <aside class="left-panel panel" id="leftPanel">
+      <div class="panel-heading"><div><span class="eyebrow">WORKSPACE</span><h2>Tour editor</h2></div><button class="icon-btn" id="closeLeft" aria-label="Close panel">×</button></div>
+      <div class="tabs"><button class="tab active" data-tab="scenes">Scenes <span id="sceneCount">0</span></button><button class="tab" data-tab="floorplan">Floor plan</button></div>
+      <section class="tab-content" id="scenesTab">
+        <div class="section-row"><span class="section-label">YOUR LOCATIONS</span><button class="text-btn" id="addSceneBtn">＋ Add scene</button></div>
+        <div class="scene-list" id="sceneList"><div class="empty-state"><div class="empty-icon">◉</div><b>No scenes yet</b><p>Upload 360° panoramas to start building your tour.</p><button class="btn primary full" id="firstUpload">＋ Import panoramas</button></div></div>
+        <div class="tip-card"><span>✦</span><div><b>Studio tip</b><p>Use equirectangular 2:1 images for the best 360° result.</p></div></div>
+      </section>
+      <section class="tab-content hidden" id="floorplanTab">
+        <div class="section-row"><span class="section-label">TOUR FLOOR PLAN</span></div>
+        <label class="upload-drop small-drop" for="floorplanInput"><span class="upload-symbol">＋</span><b>Upload floor plan</b><small>PNG, JPG or SVG image</small></label><input type="file" id="floorplanInput" accept="image/*" hidden>
+        <div id="floorplanEditor" class="floorplan-editor"><p class="muted">Upload a floor plan to place scene markers.</p></div>
+        <p class="hint">After uploading, click on the plan to place the active scene marker. Drag markers to reposition them.</p>
+      </section>
+      <div class="panel-bottom"><div class="storage-line"><span>LOCAL PROJECT STORAGE</span><span id="storageStatus">Ready</span></div><div class="storage-track"><i></i></div><small>Your project is stored in this browser until exported.</small></div>
+    </aside>
+
+    <section class="viewer-column">
+      <div class="viewer-toolbar"><div class="viewer-label"><span class="status-pill"><i></i> LIVE PREVIEW</span><span id="activeSceneLabel">No scene selected</span></div><div class="viewer-tools"><button class="tool-btn active" id="selectTool" title="Select / look">⌖</button><button class="tool-btn" id="hotspotTool" title="Add hotspot">＋</button><span class="tool-sep"></span><button class="tool-btn" id="gyroBtn" title="Enable device motion">◎</button><button class="tool-btn" id="fullscreenBtn" title="Fullscreen">⛶</button></div></div>
+      <div class="viewer" id="viewer"><div class="viewer-placeholder" id="viewerPlaceholder"><div class="placeholder-orbit">◎</div><h2>Your space, in every direction.</h2><p>Import a 360° panorama to begin your virtual experience.</p><button class="btn primary" id="viewerUpload">Import 360° image</button></div><div class="viewer-overlay top-left" id="viewHint">DRAG TO LOOK AROUND <span>·</span> SCROLL TO ZOOM</div><div class="viewer-overlay bottom-left" id="viewerSceneName"></div><div class="viewer-overlay bottom-right"><button class="round-control" id="zoomOut">−</button><button class="round-control" id="zoomIn">＋</button></div><div id="hotspotLayer"></div></div>
+      <div class="viewer-footer"><div class="footer-left"><span class="key-hint">DRAG <span>↔</span></span><span class="key-hint">ZOOM <span>⌕</span></span><span class="key-hint">HOTSPOTS <span>⌖</span></span></div><div class="footer-right"><span id="imageInfo">No panorama loaded</span></div></div>
+      <div class="mobile-scene-strip" id="mobileSceneStrip"></div>
+    </section>
+
+    <aside class="right-panel panel" id="rightPanel">
+      <div class="panel-heading"><div><span class="eyebrow">SCENE SETTINGS</span><h2>Properties</h2></div><button class="icon-btn" id="closeRight" aria-label="Close panel">×</button></div>
+      <div id="propertiesEmpty" class="properties-empty"><div class="empty-icon">✧</div><b>Nothing selected</b><p>Select a scene or hotspot to edit its properties.</p></div>
+      <div id="sceneProperties" class="properties-content hidden">
+        <div class="property-preview" id="propertyPreview"><span>360°</span></div>
+        <label class="field-label">SCENE NAME</label><input class="field" id="sceneNameInput" placeholder="Living room">
+        <label class="field-label">DESCRIPTION</label><textarea class="field textarea" id="sceneDescInput" rows="3" placeholder="Describe this space..."></textarea>
+        <div class="property-divider"></div><div class="section-row"><span class="section-label">HOTSPOTS</span><span class="count-chip" id="hotspotCount">0</span></div>
+        <div id="hotspotList" class="hotspot-list"><p class="muted">No hotspots in this scene.</p></div>
+        <button class="btn outline full" id="addHotspotFromPanel">＋ Add hotspot in viewer</button>
+        <div class="property-divider"></div><button class="danger-btn" id="deleteSceneBtn">Delete this scene</button>
+      </div>
+      <div id="hotspotProperties" class="properties-content hidden">
+        <span class="eyebrow">HOTSPOT DETAILS</span><label class="field-label">LABEL</label><input class="field" id="hotspotLabelInput" placeholder="Go to kitchen">
+        <label class="field-label">ACTION</label><select class="field" id="hotspotTargetInput"><option value="">Information only</option></select>
+        <label class="field-label">DESCRIPTION</label><textarea class="field textarea" id="hotspotDescInput" rows="3" placeholder="Optional details..."></textarea>
+        <div class="property-divider"></div><button class="danger-btn" id="deleteHotspotBtn">Delete hotspot</button>
+      </div>
+    </aside>
+  </main>
+  <footer class="app-footer"><span>TOUR STUDIO <b>•</b> BUILD 1.0</span><span>Designed for immersive spaces</span><span id="footerStatus">All changes are local</span></footer>
+</div>
+<input type="file" id="panoramaInput" accept="image/jpeg,image/png,image/webp" multiple hidden><input type="file" id="projectInput" accept="application/json,.json" hidden>
+<div class="toast" id="toast"></div>
+<div class="modal-backdrop hidden" id="helpModal"><div class="modal"><div class="modal-head"><div><span class="eyebrow">QUICK GUIDE</span><h2>Build your first tour</h2></div><button class="icon-btn" id="closeHelp">×</button></div><ol class="guide-list"><li><b>Import panoramas</b><p>Add one 360° equirectangular JPG or PNG for each room.</p></li><li><b>Connect your scenes</b><p>Choose the + hotspot tool, then click inside the panorama. Select a destination scene in Properties.</p></li><li><b>Add a floor plan</b><p>Upload a plan and click to place the active scene marker.</p></li><li><b>Test on a phone</b><p>Open the published HTTPS link and tap the motion button. iPhone may ask for permission.</p></li><li><b>Export</b><p>Export a standalone HTML tour or a project backup JSON.</p></li></ol><p class="modal-note">Panorama images should ideally have a 2:1 aspect ratio (for example, 6000 × 3000 px).</p></div></div>
+<script type="module" src="app.js"></script>
+</body></html>
